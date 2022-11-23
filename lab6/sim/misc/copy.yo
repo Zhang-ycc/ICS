@@ -1,0 +1,45 @@
+                            | # Zhang Yuechen 520021910266
+0x000:                      | 	.pos 0x0
+0x000: 30f40004000000000000 | 	irmovq stack, %rsp
+0x00a: 804800000000000000   | 	call main
+0x013: 00                   | 	halt
+                            | 
+0x018:                      | .align 8
+0x018:                      | src:
+0x018: 0a00000000000000     | 	.quad 0x00a
+0x020: b000000000000000     | 	.quad 0x0b0
+0x028: 000c000000000000     | 	.quad 0xc00
+0x030:                      | dest:
+0x030: 1101000000000000     | 	.quad 0x111
+0x038: 2202000000000000     | 	.quad 0x222
+0x040: 3303000000000000     | 	.quad 0x333
+                            | 
+0x048:                      | main:
+0x048: 30f71800000000000000 | 	irmovq src, %rdi
+0x052: 30f63000000000000000 | 	irmovq dest, %rsi
+0x05c: 30f20300000000000000 | 	irmovq $3, %rdx
+0x066: 807000000000000000   | 	call copy_block		# copy(*src, *dest, len)
+0x06f: 90                   | 	ret
+                            | 
+0x070:                      | copy_block:
+0x070: 30f00000000000000000 | 	irmovq $0, %rax 	# result = 0
+0x07a: 30f80000000000000000 | 	irmovq $0, %r8
+0x084: 30fa0800000000000000 | 	irmovq $8, %r10
+0x08e: 30fb0100000000000000 | 	irmovq $1, %r11
+0x098:                      | Loop:
+0x098: 6182                 | 	subq %r8, %rdx		# if (len <=  0) return result
+0x09a: 71c800000000000000   | 	jle L1
+0x0a3: 50970000000000000000 | 	mrmovq (%rdi), %r9	# val = *src
+0x0ad: 40960000000000000000 | 	rmmovq %r9, (%rsi)	# *dest = val
+0x0b7: 6390                 | 	xorq %r9, %rax		# result ^= val
+0x0b9: 60a7                 | 	addq %r10, %rdi		# src++
+0x0bb: 60a6                 | 	addq %r10, %rsi		# dest++	
+0x0bd: 61b2                 | 	subq %r11, %rdx		# len--
+0x0bf: 709800000000000000   | 	jmp Loop
+0x0c8:                      | L1:
+0x0c8: 90                   | 	ret
+                            | 
+0x400:                      | 	.pos 0x400
+0x400:                      | stack:
+                            | 
+                            | 	

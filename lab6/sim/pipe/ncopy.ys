@@ -1,0 +1,131 @@
+#/* $begin ncopy-ys */
+##################################################################
+# ncopy.ys - Copy a src block of len words to dst.
+# Return the number of positive words (>0) contained in src.
+#
+# Include your name and ID here.
+# Zhang Yuechen 520021910266
+#
+# Describe how and why you modified the baseline code.
+# First, introduce iaddq; Second, do 7*1 loop unrolling; Last, divide the remainder into three circumstances and discuss separately.
+# Reason: Because loop unrolling can reduce the number of iterations for a loop to improve performance. And by testing, 7*1 loop is the best while 6*1 increase the CPE of longer length and 10*1 increase the CPEof shorter CPE.
+#
+##################################################################
+# Do not modify this portion
+# Function prologue.
+# %rdi = src, %rsi = dst, %rdx = len
+ncopy:
+
+##################################################################
+# You can modify this portion
+	# Loop header
+	iaddq $-7, %rdx		# len -7 ?
+	jl Next			# if <0 , goto Next:
+Loop:	mrmovq (%rdi), %r9	# read val from src...
+	mrmovq 8(%rdi), %r10
+	rmmovq %r9, (%rsi)	# ...and store it to dst
+	andq %r9, %r9		# val <= 0?
+	jle Loop1		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Loop1:	mrmovq 16(%rdi), %r9
+	rmmovq %r10, 8(%rsi)
+	andq %r10, %r10
+	jle Loop2
+	iaddq $1, %rax
+Loop2:	mrmovq 24(%rdi), %r10
+	rmmovq %r9, 16(%rsi)
+	andq %r9, %r9
+	jle Loop3
+	iaddq $1, %rax
+Loop3:	mrmovq 32(%rdi), %r9
+	rmmovq %r10, 24(%rsi)
+	andq %r10, %r10
+	jle Loop4
+	iaddq $1, %rax
+Loop4:	mrmovq 40(%rdi), %r10
+	rmmovq %r9, 32(%rsi)
+	andq %r9, %r9
+	jle Loop5
+	iaddq $1, %rax
+Loop5:	mrmovq 48(%rdi), %r9
+	rmmovq %r10, 40(%rsi)
+	andq %r10, %r10  
+	jle Loop6
+	iaddq $1, %rax
+Loop6:	rmmovq %r9, 48(%rsi)
+	andq %r9, %r9
+	jle Npos
+	iaddq $1, %rax
+Npos:	iaddq $56, %rdi
+	iaddq $56, %rsi
+	iaddq $-7, %rdx
+	jge Loop
+Next:	iaddq $4, %rdx
+	jl Final
+	jg Next41
+Next31:	mrmovq (%rdi), %r9
+	mrmovq 8(%rdi), %r10
+	mrmovq 16(%rdi), %r11
+	rmmovq %r9, (%rsi)
+	andq %r9, %r9
+	jle Next32
+	iaddq $1, %rax
+Next32:	rmmovq %r10, 8(%rsi)
+	andq %r10, %r10
+	jle Next33
+	iaddq $1, %rax
+Next33:	rmmovq %r11, 16(%rsi)
+	andq %r11, %r11
+	jle Done
+	iaddq $1, %rax
+	jmp Done
+Next41:	mrmovq (%rdi), %r9
+	mrmovq 8(%rdi), %r10
+	rmmovq %r9, (%rsi)
+	andq %r9, %r9
+	jle Next42	
+	iaddq $1, %rax
+Next42:	mrmovq 16(%rdi), %r9
+	rmmovq %r10, 8(%rsi)
+	andq %r10, %r10
+	jle Next43
+	iaddq $1, %rax
+Next43:	mrmovq 24(%rdi), %r10
+	rmmovq %r9, 16(%rsi)
+	andq %r9, %r9
+	jle Next44
+	iaddq $1, %rax
+Next44:	rmmovq %r10, 24(%rsi)
+	andq %r10, %r10
+	jle Npos1
+	iaddq $1, %rax
+Npos1:	iaddq $32, %rdi
+	iaddq $32, %rsi
+	iaddq $-1, %rdx
+	andq %rdx, %rdx
+	jmp Final1	
+Final:	iaddq $3, %rdx
+Final1:	je Done
+	mrmovq (%rdi), %r9
+	mrmovq 8(%rdi), %r10
+	rmmovq %r9, (%rsi)
+	andq %r9, %r9
+	jle Final2
+	iaddq $1, %rax
+Final2: iaddq $-1, %rdx
+	je Done
+	rmmovq %r10, 8(%rsi)
+	andq %r10, %r10
+	jle Done
+	iaddq $1, %rax
+
+	
+##################################################################
+# Do not modify the following section of code
+# Function epilogue.
+Done:
+	ret
+##################################################################
+# Keep the following label at the end of your function
+End:
+#/* $end ncopy-ys */

@@ -1,0 +1,38 @@
+# Zhang Yuechen 520021910266
+	.pos 0x0
+	irmovq stack, %rsp
+	call main
+	halt
+
+.align 8
+ele1:
+	.quad 0x00a
+	.quad ele2
+ele2:
+	.quad 0x0b0
+	.quad ele3
+ele3:
+	.quad 0xc00
+	.quad 0
+
+main:
+	irmovq ele1, %rdi
+	call sum		# sum(ele1)
+	ret
+
+sum:
+	irmovq $0, %r8		# constant 0
+	irmovq $0, %rax		# val = 0
+Loop:
+	subq %r8, %rdi
+	je L1			# if end
+	mrmovq (%rdi), %r9	# get p->val
+	addq %r9, %rax		# add to sum
+	mrmovq 8(%rdi),%rdi	# p->next
+	jmp Loop
+L1:
+	ret
+
+	.pos 0x400
+stack:
+
